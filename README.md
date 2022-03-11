@@ -1,4 +1,4 @@
-#Simple geometry app written in C++
+# Simple geometry app written in C++
 This is a basic *alternative* to the popular GeoGebra (and Desmos)
 
 It is written in C++ using RayLib and custom geometry classes I made myself.
