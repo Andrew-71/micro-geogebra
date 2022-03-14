@@ -48,6 +48,13 @@ int main()
     Button perp_line_btn(21, (640 + 67 + 8), 230, 60, 40, "Perp.\nLine");
     Button line_cross_btn(22, 640, 230, 60, 40, "Line\nCross.");
 
+    // Couldn't finish in time, but technically ready!
+    ColourButtonRect blue_btn(640, 140, 60, 40, BLUE, SKYBLUE);
+    ColourButtonRect green_btn((640 + 67 + 8), 90, 60, 40, LIME, GREEN);
+    ColourButtonRect yellow_btn((640 + 67 + 8), 140, 60, 40, GOLD, YELLOW);
+    ColourButtonRect red_btn(640, 90, 60, 40, MAROON, RED);
+
+
     // Vectors for objects
     std::vector<Point> point_vector(0);
     std::vector<Triangle> triangle_vector(0);
@@ -229,6 +236,35 @@ int main()
                 line_vector.push_back(Line(p, l.foot_of_perp(p)));
             } // Perpendicular line
 
+            if (blue_btn.is_hovered())
+            {
+                point_vector = change_colours(point_vector, blue_btn.colour);
+                triangle_vector = change_colours_triangles(triangle_vector, blue_btn.colour);
+                circle_vector = change_colours_circles(circle_vector, blue_btn.colour);
+                line_vector = change_colours_line(line_vector, blue_btn.colour);
+            }
+            if (green_btn.is_hovered())
+            {
+                point_vector = change_colours(point_vector, green_btn.colour);
+                triangle_vector = change_colours_triangles(triangle_vector, green_btn.colour);
+                circle_vector = change_colours_circles(circle_vector, green_btn.colour);
+                line_vector = change_colours_line(line_vector, green_btn.colour);
+            }
+            if (red_btn.is_hovered())
+            {
+                point_vector = change_colours(point_vector, red_btn.colour);
+                triangle_vector = change_colours_triangles(triangle_vector, red_btn.colour);
+                circle_vector = change_colours_circles(circle_vector, red_btn.colour);
+                line_vector = change_colours_line(line_vector, red_btn.colour);
+            }
+            if (yellow_btn.is_hovered())
+            {
+                point_vector = change_colours(point_vector, yellow_btn.colour);
+                triangle_vector = change_colours_triangles(triangle_vector, yellow_btn.colour);
+                circle_vector = change_colours_circles(circle_vector, yellow_btn.colour);
+                line_vector = change_colours_line(line_vector, yellow_btn.colour);
+            }
+
             // Process points =======================================
             bool did_action = false;
             int index = 0;
@@ -372,6 +408,10 @@ int main()
         outer_circle_btn.draw(CAN_CREATE_OUTER_CIRCLE);
         perp_line_btn.draw(CAN_CREATE_PERPENDICULAR_LINE);
         line_cross_btn.draw(CAN_CREATE_LINE_CROSSING);
+        blue_btn.draw();
+        green_btn.draw();
+        yellow_btn.draw();
+        red_btn.draw();
 
         // Clear background
         ClearBackground(RAYWHITE);

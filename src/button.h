@@ -73,4 +73,122 @@ public:
     }
 };
 
+// Colour select button (circle)
+class ColourButton
+{
+public:
+    int x, y, r;
+    Color colour;
+    Color colour_hover;
+
+    ColourButton(int x_in, int y_in, int radius, Color c, Color c_light)
+    {
+        x = x_in;
+        y = y_in;
+        r = radius;
+        colour = c;
+        colour_hover = c_light;
+    }
+
+    bool is_hovered(int x_mouse=GetMouseX(), int y_mouse=GetMouseY())
+    {
+        if (sqrt((y_mouse - y) * (y_mouse - y) + (x_mouse - x) * (x_mouse - x)) <= r) return true;
+        return false;
+    }
+
+    void draw()
+    {
+        if (is_hovered()) DrawCircle(x, y, r, colour_hover);
+        else DrawCircle(x, y, r, colour);
+    }
+};
+
+// Colour select button (rectangle)
+class ColourButtonRect
+{
+public:
+    int x, y, width, height;
+    Color colour;
+    Color colour_hover;
+
+    ColourButtonRect(int x_in, int y_in, int width_in, int height_in, Color c, Color c_light)
+    {
+        x = x_in;
+        y = y_in;
+        width = width_in;
+        height = height_in;
+        colour = c;
+        colour_hover = c_light;
+    }
+
+    bool is_hovered(int x_mouse=GetMouseX(), int y_mouse=GetMouseY())
+    {
+        if ((x <= x_mouse && x + width >= x_mouse) && (y <= y_mouse && y + height >= y_mouse)) return true;
+        return false;
+    }
+
+    void draw()
+    {
+        if (is_hovered()) DrawRectangle(x, y, width, height, colour_hover);
+        else DrawRectangle(x, y, width, height, colour);
+    }
+};
+
+
+std::vector<Point> change_colours(std::vector<Point> v, Color new_colour)
+{
+    for (auto i = std::begin(v); i != std::end(v); ++i)
+    {
+        if (i->selected)
+        {
+            i->colour = new_colour;
+            i->selected = false;
+        }
+    }
+    return v;
+}
+
+std::vector<Triangle> change_colours_triangles(std::vector<Triangle> v, Color new_colour)
+{
+    for (auto i = std::begin(v); i != std::end(v); ++i)
+    {
+        if (i->selected)
+        {
+            i->a.colour = new_colour;
+            i->b.colour = new_colour;
+            i->c.colour = new_colour;
+            i->change_select();
+        }
+    }
+    return v;
+}
+
+std::vector<Circle> change_colours_circles(std::vector<Circle> v, Color new_colour)
+{
+    for (auto i = std::begin(v); i != std::end(v); ++i)
+    {
+        if (i->selected)
+        {
+            i->centre.colour = new_colour;
+            i->change_select();
+        }
+    }
+    return v;
+}
+
+std::vector<Line> change_colours_line(std::vector<Line> v, Color new_colour)
+{
+    for (auto i = std::begin(v); i != std::end(v); ++i)
+    {
+        if (i->selected)
+        {
+            i->p1.colour = new_colour;
+            i->p2.colour = new_colour;
+            i->change_select();
+        }
+    }
+    return v;
+}
+
+
 #endif //BUTTON_H

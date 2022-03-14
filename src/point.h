@@ -60,6 +60,11 @@ public:
         return sqrt((x - x_in) * (x - x_in) + (y - y_in) * (y - y_in));
     }
 
+    void change_colour(Color c)
+    {
+        colour = c;
+    }
+
     void draw() const
     {
         if (not selected) DrawCircle(x, y, 5, colour);
