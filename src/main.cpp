@@ -52,7 +52,6 @@ int main()
 
     // Vector for objects
     std::vector<BaseObject*> object_vector(0);
-    object_vector.push_back(new Circle(40, 200, 30));
 
     // System variables
     bool DELETE_STATE = false;
