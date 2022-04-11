@@ -103,7 +103,7 @@ int main()
                     if (dynamic_cast<ActionButton*>((*btn)) != NULL)
                     {
                         auto *action_btn(dynamic_cast<ActionButton*>((*btn)));
-                        if (action_btn->label == "Create line")
+                        if (action_btn->label == "Create line" && CAN_CREATE_LINE)
                         {
                             Point *p1, *p2;
                             int index = 0;
@@ -130,7 +130,7 @@ int main()
                             }
                             object_vector.push_back(new Line(*p1, *p2));
                         }
-                        if (action_btn->label == "Create triangle")
+                        if (action_btn->label == "Create triangle" && CAN_CREATE_TRIANGLE)
                         {
                             Point *p1, *p2, *p3;
                             int index = 0;
@@ -168,7 +168,7 @@ int main()
                             }
                             object_vector.push_back(new Triangle(*p1, *p2, *p3));
                         }
-                        if (action_btn->label == "Inner\nCircle")
+                        if (action_btn->label == "Inner\nCircle" && CAN_CREATE_INNER_CIRCLE)
                         {
                             Triangle *t;
                             for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
@@ -183,7 +183,7 @@ int main()
                                 }
                             }
                         }
-                        if (action_btn->label == "Outer\nCircle")
+                        if (action_btn->label == "Outer\nCircle" && CAN_CREATE_OUTER_CIRCLE)
                         {
                             Triangle *t;
                             for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
@@ -198,7 +198,7 @@ int main()
                                 }
                             }
                         }
-                        if (action_btn->label == "Perp.\nLine")
+                        if (action_btn->label == "Perp.\nLine" && CAN_CREATE_PERPENDICULAR_LINE)
                         {
                             Point *p;
                             Line *l;
@@ -224,7 +224,7 @@ int main()
                             }
                             object_vector.push_back(new Line(*p, (*l).foot_of_perp(*p)));
                         }
-                        if (action_btn->label == "Line\nCross.")
+                        if (action_btn->label == "Line\nCross." && CAN_CREATE_LINE_CROSSING)
                         {
                             Line *l1, *l2;
                             for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
