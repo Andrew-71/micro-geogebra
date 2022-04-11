@@ -1,14 +1,16 @@
 #include "raylib.h"
 
-#include <iostream>
 #include <cmath>
 #include <vector>
+#include <map>
 
-#include "point.h"
-#include "vector.h"
-#include "line.h"
-#include "circle.h"
-#include "triangle.h"
+#include "point_object.h"
+#include "vector_object.h"
+#include "line_object.h"
+#include "circle_object.h"
+#include "triangle_object.h"
+
+#include "base_object.h"
 
 #include "button.h"
 
@@ -30,36 +32,27 @@ void DrawUi(bool DELETE_STATE)
 
 int main()
 {
-    // Button declarations
-    //
-    // Codes (not used):
-    // 1 - Create Line
-    // 2 - Create Triangle
-    // 11 - Inner Circle
-    // 12 - Outer Circle
-    // 21 - Perpendicular Line
-    // 22 - Line crossing
-    //
-    EraseButton clear_button(640, 10, 135, 40);
-    Button create_line_btn(1, 640, 330, 135, 40, "Create line");
-    Button create_triangle_btn(2, 640, 380, 135, 40, "Create triangle");
-    Button inner_circle_btn(11, 640, 280, 60, 40, "Inner\nCircle");
-    Button outer_circle_btn(12, (640 + 67 + 8), 280, 60, 40, "Outer\nCircle");
-    Button perp_line_btn(21, (640 + 67 + 8), 230, 60, 40, "Perp.\nLine");
-    Button line_cross_btn(22, 640, 230, 60, 40, "Line\nCross.");
+    // Vector for buttons
+    std::vector<BaseButton*> buttons(0);
 
-    // Couldn't finish in time, but technically ready!
-    ColourButtonRect blue_btn(640, 140, 60, 40, BLUE, SKYBLUE);
-    ColourButtonRect green_btn((640 + 67 + 8), 90, 60, 40, LIME, GREEN);
-    ColourButtonRect yellow_btn((640 + 67 + 8), 140, 60, 40, GOLD, YELLOW);
-    ColourButtonRect red_btn(640, 90, 60, 40, MAROON, RED);
+    buttons.push_back(new EraseButton(640, 10, 135, 40));
 
+    buttons.push_back(new ColourButton(640, 140, 60, 40, BLUE, SKYBLUE));
+    buttons.push_back(new ColourButton(640, 140, 60, 40, BLUE, SKYBLUE));
+    buttons.push_back(new ColourButton((640 + 67 + 8), 90, 60, 40, LIME, GREEN));
+    buttons.push_back(new ColourButton((640 + 67 + 8), 140, 60, 40, GOLD, YELLOW));
+    buttons.push_back(new ColourButton(640, 90, 60, 40, MAROON, RED));
 
-    // Vectors for objects
-    std::vector<Point> point_vector(0);
-    std::vector<Triangle> triangle_vector(0);
-    std::vector<Line> line_vector(0);
-    std::vector<Circle> circle_vector(0);
+    buttons.push_back(new ActionButton(640, 330, 135, 40, "Create line"));
+    buttons.push_back(new ActionButton(640, 380, 135, 40, "Create triangle"));
+    buttons.push_back(new ActionButton(640, 280, 60, 40, "Inner\nCircle"));
+    buttons.push_back(new ActionButton((640 + 67 + 8), 280, 60, 40, "Outer\nCircle"));
+    buttons.push_back(new ActionButton((640 + 67 + 8), 230, 60, 40, "Perp.\nLine"));
+    buttons.push_back(new ActionButton(640, 230, 60, 40, "Line\nCross."));
+
+    // Vector for objects
+    std::vector<BaseObject*> object_vector(0);
+    object_vector.push_back(new Circle(40, 200, 30));
 
     // System variables
     bool DELETE_STATE = false;
@@ -87,331 +80,270 @@ int main()
         // When mouse is clicked
         if (IsMouseButtonPressed(0))
         {
-            // Check buttons ========================================
-            if (clear_button.is_hovered())
+            // Check buttons ======================================================================
+            for (auto btn = std::begin(buttons); btn != std::end(buttons); ++btn)
             {
-                point_vector.clear();
-                triangle_vector.clear();
-                line_vector.clear();
-                circle_vector.clear();
-            }
-            if (create_line_btn.is_hovered() && CAN_CREATE_LINE)
-            {
-                Point p1, p2;
-                int index = 0;
-                for (auto i = std::begin(point_vector); i != std::end(point_vector); ++i)
+                if ((*btn)->is_hovered())
                 {
-                    if (i->selected)
-                    {
-                        p1 = Point(*i);
-                        point_vector.erase(point_vector.begin() + index);
-                        break;
-                    }
-                    index++;
-                }
-                index = 0;
-                for (auto i = std::begin(point_vector); i != std::end(point_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        p2 = Point(*i);
-                        point_vector.erase(point_vector.begin() + index);
-                        break;
-                    }
-                    index++;
-                }
-                line_vector.push_back(Line(p1, p2));
-            } // Line
-            if (create_triangle_btn.is_hovered() && CAN_CREATE_TRIANGLE)
-            {
-                Point p1, p2, p3;
-                int index = 0;
-                for (auto i = std::begin(point_vector); i != std::end(point_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        p1 = Point(*i);
-                        point_vector.erase(point_vector.begin() + index);
-                        break;
-                    }
-                    index++;
-                }
-                index = 0;
-                for (auto i = std::begin(point_vector); i != std::end(point_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        p2 = Point(*i);
-                        point_vector.erase(point_vector.begin() + index);
-                        break;
-                    }
-                    index++;
-                }
-                index = 0;
-                for (auto i = std::begin(point_vector); i != std::end(point_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        p3 = Point(*i);
-                        point_vector.erase(point_vector.begin() + index);
-                        break;
-                    }
-                    index++;
-                }
-                triangle_vector.push_back(Triangle(p1, p2, p3));
-            } // Triangle
-            if (outer_circle_btn.is_hovered() && CAN_CREATE_OUTER_CIRCLE)
-            {
-                for (auto i = std::begin(triangle_vector); i != std::end(triangle_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        Point p_cross(i->outer_circle_centre());
-                        circle_vector.push_back(Circle(p_cross, p_cross.dist(i->a)));
-                        i->change_select();
-                        break;
-                    }
-                }
-            } // Outer circle
-            if (inner_circle_btn.is_hovered() && CAN_CREATE_INNER_CIRCLE)
-            {
-                for (auto i = std::begin(triangle_vector); i != std::end(triangle_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        circle_vector.push_back(Circle(i->bisector_interception(),
-                                                       Line(i->a, i->b).dist(i->bisector_interception())));
-                        i->change_select();
-                        break;
-                    }
-                }
-            } // Inner circle
-            if (line_cross_btn.is_hovered() && CAN_CREATE_LINE_CROSSING)
-            {
-                Line l1, l2;
-                for (auto i = std::begin(line_vector); i != std::end(line_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        l1 = Line(*i);
-                        i->change_select();
-                        break;
-                    }
-                }
-                for (auto i = std::begin(line_vector); i != std::end(line_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        l2 = Line(*i);
-                        i->change_select();
-                        break;
-                    }
-                }
-                point_vector.push_back(Point(l1.cross(l2)));
-            } // Line cross
-            if (perp_line_btn.is_hovered() && CAN_CREATE_PERPENDICULAR_LINE)
-            {
-                Line l;
-                for (auto i = std::begin(line_vector); i != std::end(line_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        l = Line(*i);
-                        i->change_select();
-                        break;
-                    }
-                }
-                Point p;
-                int index = 0;
-                for (auto i = std::begin(point_vector); i != std::end(point_vector); ++i)
-                {
-                    if (i->selected)
-                    {
-                        p = Point(*i);
-                        point_vector.erase(point_vector.begin() + index);
-                        break;
-                    }
-                    index++;
-                }
-                line_vector.push_back(Line(p, l.foot_of_perp(p)));
-            } // Perpendicular line
+                    if (dynamic_cast<EraseButton*>((*btn)) != NULL) object_vector.clear();  // Clear button
 
-            if (blue_btn.is_hovered())
-            {
-                point_vector = change_colours(point_vector, blue_btn.colour);
-                triangle_vector = change_colours_triangles(triangle_vector, blue_btn.colour);
-                circle_vector = change_colours_circles(circle_vector, blue_btn.colour);
-                line_vector = change_colours_line(line_vector, blue_btn.colour);
-            }
-            if (green_btn.is_hovered())
-            {
-                point_vector = change_colours(point_vector, green_btn.colour);
-                triangle_vector = change_colours_triangles(triangle_vector, green_btn.colour);
-                circle_vector = change_colours_circles(circle_vector, green_btn.colour);
-                line_vector = change_colours_line(line_vector, green_btn.colour);
-            }
-            if (red_btn.is_hovered())
-            {
-                point_vector = change_colours(point_vector, red_btn.colour);
-                triangle_vector = change_colours_triangles(triangle_vector, red_btn.colour);
-                circle_vector = change_colours_circles(circle_vector, red_btn.colour);
-                line_vector = change_colours_line(line_vector, red_btn.colour);
-            }
-            if (yellow_btn.is_hovered())
-            {
-                point_vector = change_colours(point_vector, yellow_btn.colour);
-                triangle_vector = change_colours_triangles(triangle_vector, yellow_btn.colour);
-                circle_vector = change_colours_circles(circle_vector, yellow_btn.colour);
-                line_vector = change_colours_line(line_vector, yellow_btn.colour);
-            }
+                    // Colour buttons
+                    if (dynamic_cast<ColourButton*>((*btn)) != NULL)
+                    {
+                        for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                        {
+                            if ((*i)->selected)
+                            {
+                                (*i)->change_colour((*btn)->colour);
+                                (*i)->change_select();
+                            }
+                        }
+                    }
 
-            // Process points =======================================
+                    // Action buttons
+                    if (dynamic_cast<ActionButton*>((*btn)) != NULL)
+                    {
+                        auto *action_btn(dynamic_cast<ActionButton*>((*btn)));
+                        if (action_btn->label == "Create line")
+                        {
+                            Point *p1, *p2;
+                            int index = 0;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Point*>((*i)) != NULL)
+                                {
+                                    p1 = dynamic_cast<Point*>((*i));
+                                    object_vector.erase(object_vector.begin() + index);
+                                    break;
+                                }
+                                index++;
+                            }
+                            index = 0;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Point*>((*i)) != NULL)
+                                {
+                                    p2 = dynamic_cast<Point*>((*i));
+                                    object_vector.erase(object_vector.begin() + index);
+                                    break;
+                                }
+                                index++;
+                            }
+                            object_vector.push_back(new Line(*p1, *p2));
+                        }
+                        if (action_btn->label == "Create triangle")
+                        {
+                            Point *p1, *p2, *p3;
+                            int index = 0;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Point*>((*i)) != NULL)
+                                {
+                                    p1 = dynamic_cast<Point*>((*i));
+                                    object_vector.erase(object_vector.begin() + index);
+                                    break;
+                                }
+                                index++;
+                            }
+                            index = 0;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Point*>((*i)) != NULL)
+                                {
+                                    p2 = dynamic_cast<Point*>((*i));
+                                    object_vector.erase(object_vector.begin() + index);
+                                    break;
+                                }
+                                index++;
+                            }
+                            index = 0;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Point*>((*i)) != NULL)
+                                {
+                                    p3 = dynamic_cast<Point*>((*i));
+                                    object_vector.erase(object_vector.begin() + index);
+                                    break;
+                                }
+                                index++;
+                            }
+                            object_vector.push_back(new Triangle(*p1, *p2, *p3));
+                        }
+                        if (action_btn->label == "Inner\nCircle")
+                        {
+                            Triangle *t;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected && dynamic_cast<Triangle*>((*i)) != NULL)
+                                {
+                                    t = dynamic_cast<Triangle*>((*i));
+                                    object_vector.push_back(new Circle((*t).bisector_interception(),
+                                                                   Line((*t).a, (*t).b).dist((*t).bisector_interception())));
+                                    (*i)->change_select();
+                                    break;
+                                }
+                            }
+                        }
+                        if (action_btn->label == "Outer\nCircle")
+                        {
+                            Triangle *t;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected && dynamic_cast<Triangle*>((*i)) != NULL)
+                                {
+                                    t = dynamic_cast<Triangle*>((*i));
+                                    Point p_cross((*t).outer_circle_centre());
+                                    object_vector.push_back(new Circle(p_cross, p_cross.dist((*t).a)));
+                                    (*i)->change_select();
+                                    break;
+                                }
+                            }
+                        }
+                        if (action_btn->label == "Perp.\nLine")
+                        {
+                            Point *p;
+                            Line *l;
+                            int index = 0;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Point*>((*i)) != NULL)
+                                {
+                                    p = dynamic_cast<Point*>((*i));
+                                    object_vector.erase(object_vector.begin() + index);
+                                    break;
+                                }
+                                index++;
+                            }
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Line*>((*i)) != NULL)
+                                {
+                                    l = dynamic_cast<Line*>((*i));
+                                    (*i)->change_select();
+                                    break;
+                                }
+                            }
+                            object_vector.push_back(new Line(*p, (*l).foot_of_perp(*p)));
+                        }
+                        if (action_btn->label == "Line\nCross.")
+                        {
+                            Line *l1, *l2;
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Line*>((*i)) != NULL)
+                                {
+                                    l1 = dynamic_cast<Line*>((*i));
+                                    (*i)->change_select();
+                                    break;
+                                }
+                            }
+                            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+                            {
+                                if ((*i)->selected and dynamic_cast<Line*>((*i)) != NULL)
+                                {
+                                    l2 = dynamic_cast<Line*>((*i));
+                                    (*i)->change_select();
+                                    break;
+                                }
+                            }
+                            object_vector.push_back(new Point((*l1).cross(*l2)));
+                        }
+                    }
+                }
+            }
+            // ====================================================================================
+
+
+            // Process selection & deletion =======================================================
             bool did_action = false;
             int index = 0;
+            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+            {
+                if ((*i)->is_touched())
+                {
+                    did_action = true;
+                    if (DELETE_STATE)
+                    {
+                        object_vector.erase(object_vector.begin() + index);
+                        break;
+                    }
+                    else
+                    {
+                        (*i)->change_select();
+                    }
+                }
+                index++;
+            }
+            // ====================================================================================
+
+            // Process amount of selected items of each type ======================================
             int amount_selected_points = 0;
-            for (auto i = std::begin(point_vector); i != std::end(point_vector); ++i)
-            {
-                if (i->dist(Point(GetMouseX(), GetMouseY())) < 4)
-                {
-                    did_action = true;
-                    if (DELETE_STATE)
-                    {
-                        point_vector.erase(point_vector.begin() + index);
-                        break;
-                    }
-                    else
-                    {
-                        i->selected = !i->selected;
-                    }
-                }
-                if (i->selected) amount_selected_points++;
-                index++;
-            }
-
-            // Process lines ========================================
-            index = 0;
             int amount_selected_lines = 0;
-            for (auto i = std::begin(line_vector); i != std::end(line_vector); ++i)
-            {
-                if (i->p1.dist(Point(GetMouseX(), GetMouseY())) < 4 ||
-                i->p2.dist(Point(GetMouseX(), GetMouseY())) < 4)
-                {
-                    did_action = true;
-                    if (DELETE_STATE)
-                    {
-                        line_vector.erase(line_vector.begin() + index);
-                        break;
-                    }
-                    else
-                    {
-                        i->change_select();
-                    }
-                }
-                if (i->selected) amount_selected_lines++;
-                index++;
-            }
-
-            // Process triangles ====================================
-            index = 0;
             int amount_selected_triangles = 0;
-            for (auto i = std::begin(triangle_vector); i != std::end(triangle_vector); ++i)
-            {
-                if (i->a.dist(Point(GetMouseX(), GetMouseY())) < 4 ||
-                    i->b.dist(Point(GetMouseX(), GetMouseY())) < 4 ||
-                    i->c.dist(Point(GetMouseX(), GetMouseY())) < 4)
-                {
-                    did_action = true;
-                    if (DELETE_STATE)
-                    {
-                        triangle_vector.erase(triangle_vector.begin() + index);
-                        break;
-                    }
-                    else
-                    {
-                        i->change_select();
-                    }
-                }
-                if (i->selected) amount_selected_triangles++;
-                index++;
-            }
-
-            // Process triangles ====================================
-            index = 0;
             int amount_selected_circles = 0;
-            for (auto i = std::begin(circle_vector); i != std::end(circle_vector); ++i)
+            for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
             {
-                if (i->centre.dist(Point(GetMouseX(), GetMouseY())) < 4)
+                if ((*i)->selected)
                 {
-                    did_action = true;
-                    if (DELETE_STATE)
-                    {
-                        circle_vector.erase(circle_vector.begin() + index);
-                        break;
-                    }
-                    else
-                    {
-                        i->change_select();
-                    }
+                    if (dynamic_cast<Point*>((*i)) != NULL) amount_selected_points++;
+                    if (dynamic_cast<Line*>((*i)) != NULL) amount_selected_lines++;
+                    if (dynamic_cast<Triangle*>((*i)) != NULL) amount_selected_triangles++;
+                    if (dynamic_cast<Circle*>((*i)) != NULL) amount_selected_circles++;
                 }
-                if (i->selected) amount_selected_circles++;
-                index++;
             }
+            // ====================================================================================
 
-            // Check system variables ===============================
-            if (amount_selected_triangles == 1)
-            {
-                CAN_CREATE_INNER_CIRCLE = true;
-                CAN_CREATE_OUTER_CIRCLE = true;
-            }
-            else
-            {
-                CAN_CREATE_INNER_CIRCLE = false;
-                CAN_CREATE_OUTER_CIRCLE = false;
-            }
-            if (amount_selected_points == 2) CAN_CREATE_LINE = true;
-            else CAN_CREATE_LINE = false;
+            // Reset system variables =============================================================
+            CAN_CREATE_INNER_CIRCLE = CAN_CREATE_OUTER_CIRCLE = (amount_selected_triangles == 1);
 
-            if (amount_selected_points == 3) CAN_CREATE_TRIANGLE = true;
-            else CAN_CREATE_TRIANGLE = false;
+            CAN_CREATE_LINE = (amount_selected_points == 2);
 
-            if (amount_selected_lines == 2) CAN_CREATE_LINE_CROSSING = true;
-            else CAN_CREATE_LINE_CROSSING = false;
+            CAN_CREATE_TRIANGLE = (amount_selected_points == 3);
 
-            if (amount_selected_lines == 1 && amount_selected_points == 1) CAN_CREATE_PERPENDICULAR_LINE = true;
-            else CAN_CREATE_PERPENDICULAR_LINE = false;
-            // ======================================================
+            CAN_CREATE_LINE_CROSSING = (amount_selected_lines == 2);
 
-            // Create a point =======================================
+            CAN_CREATE_PERPENDICULAR_LINE = (amount_selected_lines == 1 && amount_selected_points == 1);
+            // ====================================================================================
+
+
+            // Create a point if we didn't touch anything =========================================
             if (not did_action and not DELETE_STATE and GetMouseX() < 600)
             {
-                Point p(GetMouseX(), GetMouseY());
-                point_vector.push_back(p);
+                object_vector.push_back(new Point(GetMouseX(), GetMouseY()));
             }
-            // ======================================================
+            // ====================================================================================
         }
 
         BeginDrawing();
 
         // Draw objects
-        for (auto i = std::begin(point_vector); i != std::end(point_vector); ++i) i->draw();
-        for (auto i = std::begin(triangle_vector); i != std::end(triangle_vector); ++i) i->draw();
-        for (auto i = std::begin(line_vector); i != std::end(line_vector); ++i) i->draw();
-        for (auto i = std::begin(circle_vector); i != std::end(circle_vector); ++i) i->draw();
+        for (auto i = std::begin(object_vector); i != std::end(object_vector); ++i)
+        {
+            (*i)->draw();
+        }
 
         DrawUi(DELETE_STATE); // Draw UI
 
         // Draw buttons
-        clear_button.draw();
-        create_line_btn.draw(CAN_CREATE_LINE);
-        create_triangle_btn.draw(CAN_CREATE_TRIANGLE);
-        inner_circle_btn.draw(CAN_CREATE_INNER_CIRCLE);
-        outer_circle_btn.draw(CAN_CREATE_OUTER_CIRCLE);
-        perp_line_btn.draw(CAN_CREATE_PERPENDICULAR_LINE);
-        line_cross_btn.draw(CAN_CREATE_LINE_CROSSING);
-        blue_btn.draw();
-        green_btn.draw();
-        yellow_btn.draw();
-        red_btn.draw();
+        std::map<std::string, bool> conditions = {
+                { "Create line", CAN_CREATE_LINE},
+                {"Create triangle", CAN_CREATE_TRIANGLE},
+                {"Inner\nCircle", CAN_CREATE_INNER_CIRCLE},
+                {"Outer\nCircle", CAN_CREATE_OUTER_CIRCLE},
+                {"Perp.\nLine", CAN_CREATE_PERPENDICULAR_LINE},
+                {"Line\nCross.", CAN_CREATE_LINE_CROSSING}
+        };
+        for (auto i = std::begin(buttons); i != std::end(buttons); ++i)
+        {
+            if (dynamic_cast<ActionButton*>(*i) != NULL)
+            {
+                (*dynamic_cast<ActionButton*>(*i)).draw(conditions.find((dynamic_cast<ActionButton*>(*i)->label))->second);
+            }
+            else
+            {
+                (*i)->draw();
+            }
+        }
 
         // Clear background
         ClearBackground(RAYWHITE);
